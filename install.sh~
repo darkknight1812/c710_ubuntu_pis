@@ -1,9 +1,5 @@
 #!/bin/bash
 #Acer C710 Ubuntu Post-Installation Script
-clear
-echo "This script will configure a fresh install of Ubuntu 14.04 on an Acer C710.\nI have tested it so far on Ubuntu 14.04 and Xubuntu 14.04 and it works great.\nI created this because I found that I was inputting the same commands and creating the same files over and over\nagain every time I wanted to install a fresh copy of Ubuntu.\nThis is my first script so I am always looking for improvements."
-read -p "Press [Enter] to continue:"
-clear
 
 #Run sudo apt-get update
 sudo apt-get update
@@ -31,8 +27,6 @@ i2c_dev
 chromeos_laptop
 cyapa
 EOF
-
-clear
 else
 	echo "Not installing touchpad modules"
 fi
@@ -41,7 +35,6 @@ fi
 read -p "Would you like to configure the touchpad settings for better control? y/n :" answer
 if [ "$answer" = y ]; then
 	echo "Configuring touchpad at /usr/share/X11/xorg.conf.d/50-synaptics.conf. Backup will be saved."
-	read -p "Press [Enter] to continue:"
 	sed -i.bak '18i Option "VertHysteresis" "10"' /usr/share/X11/xorg.conf.d/50-synaptics.conf
 	sed -i '18i Option "HorizHysteresis" "10"' /usr/share/X11/xorg.conf.d/50-synaptics.conf
 	sed -i '18i Option "FingerLow" "1"' /usr/share/X11/xorg.conf.d/50-synaptics.conf
@@ -89,8 +82,6 @@ EOF
 	cat << 'EOF' | sudo tee /etc/pm/config.d/00sleep_module
 SUSPEND_MODULES="cyapa"
 EOF
-
-clear
 else
 	echo "Hibernation not enabled"
 fi
@@ -99,7 +90,6 @@ fi
 read -p "Would you like to enable Intel-Pstate? y/n :" answer
 if [ "$answer" = y ]; then
 	echo "Enabling Intel-Pstate. A backup of your current grub configuration will be saved with .bak extension"
-	read -p "Press [Enter] to continue:"
 	sudo sed -i.bak s/splash/"splash intel_pstate=enable"/ /etc/default/grub
 	sudo update-grub
 	sudo apt-get install cpufrequtils
@@ -186,7 +176,6 @@ if [ "$answer" = y ]; then
 	if [ "$answer" = y ]; then
 		wget https://launchpad.net/~alexmurray/+archive/ubuntu/indicator-sensors/+build/5285672/+files/indicator-sensors_0.7-2_amd64.deb
 		sudo dpkg -i indicator-sensors_0.7-2_amd64.deb
-		sudo apt-get install -f
 	else
 		echo "Indicator sensors not install"
 	fi
@@ -249,12 +238,10 @@ if [ "$answer" = y ]; then
 	if [ "$arch" = 32 ]; then
 		wget https://download.01.org/gfx/ubuntu/14.04/main/pool/main/i/intel-linux-graphics-installer/intel-linux-graphics-installer_1.0.6-0intel1_i386.deb
 		sudo dpkg -i intel-linux-graphics-installer_1.0.6-0intel1_i386.deb
-		sudo apt-get install -f
 		intel-linux-graphics-installer		
 	elif [ "$arch" = 64 ]; then
 		wget https://download.01.org/gfx/ubuntu/14.04/main/pool/main/i/intel-linux-graphics-installer/intel-linux-graphics-installer_1.0.6-0intel1_amd64.deb
 		sudo dpkg -i intel-linux-graphics-installer_1.0.6-0intel1_amd64.deb
-		sudo apt-get install -f
 		intel-linux-graphics-installer	
 	else
 		echo "Intel Graphics Drivers Not Installed"
@@ -267,10 +254,8 @@ fi
 read -p "Do you have a solid state drive and would you like to configure the system for it? y/n :" answer
 if [ "$answer" = y ]; then
 	echo "Making changes to fstab and creating backup."
-	read -p "Press [Enter] to continue:"
 	sudo sed -i.bak 's|^\S*\s\+/\s\+\S*\s\+|&noatime,nodiratime,|' /etc/fstab
 	echo "Creating daily trim cron job. This will create logs at /var/log/trim.log"
-	read -p "Press [Enter] to continue:"
 	cat << 'EOF' | sudo tee /etc/cron.daily/trim
 #!/bin/sh
 LOG=/var/log/trim.log
@@ -279,7 +264,6 @@ fstrim -v / >> $LOG
 fstrim -v /home >> $LOG
 EOF
 
-clear
 else
 	echo "SSD not configured"
 fi
