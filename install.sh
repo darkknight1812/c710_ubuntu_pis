@@ -382,7 +382,7 @@ clear
 read -p "Would you like to upgrade all of the packages for Ubuntu? y/n :" answer
 if [ "$answer" = y ]; then
 	sudo apt-get update
-	sudo apt-get upgrade
+	sudo apt-get dist-upgrade
 	echo "Packages upgraded"
 else
 	echo "Packages not upgraded"
