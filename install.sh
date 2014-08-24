@@ -2,11 +2,12 @@
 #Acer C710 Ubuntu Post-Installation Script
 clear
 echo -e "This script will configure a fresh install of Ubuntu 14.04 on an Acer C710.\nI have tested it so far on Ubuntu 14.04 and Xubuntu 14.04 and it works great.\nI created this because I found that I was inputting the same commands and creating the same files over and over\nagain every time I wanted to install a fresh copy of Ubuntu.\nThis is my first script so I am always looking for improvements."
-read -p "Press [Enter] to continue:"
+read -p "Press [Enter] to continue:" answer
 clear
 
 #Run sudo apt-get update
 sudo apt-get update
+clear
 
 #Ask Arch type
 correct=false
@@ -18,37 +19,45 @@ while [ "$correct" = "false" ];
 		elif [ "$arch" = 64 ]; then
 			correct=true
 		else
-			echo "Please type either 32 or 64."
+			echo "Please type either 32 or 64"
 		fi
 	done
+clear
+
 #Load modules for C710
 read -p "1. Would you like to install touchpad modules? y/n :" answer
 if [ "$answer" = y ]; then
-	echo "Installing touchpad modules..."
 	cat << 'EOF' | sudo tee -a /etc/modules 
 i2c_i801
 i2c_dev
 chromeos_laptop
 cyapa
 EOF
-
-clear
+	
+	clear
+	echo "Touchpad modules installed"
 else
 	echo "Not installing touchpad modules"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Configue synaptics for better touchpad; will fix grounding issues on battery
 read -p "2. Would you like to configure the touchpad settings for better control? y/n :" answer
 if [ "$answer" = y ]; then
 	echo "Configuring touchpad at /usr/share/X11/xorg.conf.d/50-synaptics.conf. Backup will be saved."
-	read -p "Press [Enter] to continue:"
+	read -p "Press [Enter] to continue:" answer
+	clear
 	sed -i.bak '18i Option "VertHysteresis" "10"' /usr/share/X11/xorg.conf.d/50-synaptics.conf
 	sed -i '18i Option "HorizHysteresis" "10"' /usr/share/X11/xorg.conf.d/50-synaptics.conf
 	sed -i '18i Option "FingerLow" "1"' /usr/share/X11/xorg.conf.d/50-synaptics.conf
 	sed -i '18i Option "FingerHigh" "5"' /usr/share/X11/xorg.conf.d/50-synaptics.conf
+	echo "Configuration saved"
 else
 	echo "Touchpad not configured"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Configure CrOs flashrom
 read -p "3. Would you like to install nessecary programs for flashrom? y/n :" answer
@@ -63,13 +72,14 @@ if [ "$answer" = y ]; then
 			echo "Flashrom not configured"
 		fi
 else
-	echo "Not installing."
+	echo "Not installed"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Enable Hibernation
 read -p "4. Would you like to enable hibernation (Swap must be larger than ram!)? y/n :" answer
 if [ "$answer" = y ]; then
-	echo "Enabling hibernation"
 	#Enable hibernation
 	cat << 'EOF' | sudo tee /etc/polkit-1/localauthority/50-local.d/com.ubuntu.enable-hibernate.pkla
 [Re-enable hibernate by default in upower]
@@ -90,16 +100,19 @@ EOF
 SUSPEND_MODULES="cyapa"
 EOF
 
-clear
+	clear
+	echo "Hibernation enabled"
 else
 	echo "Hibernation not enabled"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Configure Intel-Pstate
 read -p "5. Would you like to enable Intel-Pstate? y/n :" answer
 if [ "$answer" = y ]; then
 	echo "Enabling Intel-Pstate. A backup of your current grub configuration will be saved with .bak extension"
-	read -p "Press [Enter] to continue:"
+	read -p "Press [Enter] to continue:" answer
 	sudo sed -i.bak s/splash/"splash intel_pstate=enable"/ /etc/default/grub
 	sudo update-grub
 	sudo apt-get install cpufrequtils
@@ -114,15 +127,19 @@ if [ "$answer" = y ]; then
 else
 	echo "Intel-Pstate not enabled"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Install thermald and/or tlp
 read -p "6. Would you like to enable install thermald? y/n :" answer
 if [ "$answer" = y ]; then
-	echo "Installing thermald..."
+	echo "Installing thermald"
 	sudo apt-get install thermald
 else
 	echo "thermald not installed"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 read -p "7. Would you like to enable install tlp? y/n :" answer
 if [ "$answer" = y ]; then
@@ -134,6 +151,8 @@ if [ "$answer" = y ]; then
 else
 	echo "tlp not installed"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Configure keyboard shortcuts
 read -p "8. Would you like to configure keyboard shortcuts such wifi, brightness, and volume? (manual configuration required) y/n :" answer
@@ -141,12 +160,12 @@ if [ "$answer" = y ]; then
 	sudo apt-get install xbacklight
 	clear
 	echo -e "For brightness control:\n\n1.Go to System Settings > Keyboard > Shortcuts > Custom Shortcuts and add (+ icon):\n\n2. Name:Brightness Down\nCommand: /usr/bin/xbacklight -dec 5\n\n3. Name:Brightness Up\nCommand: /usr/bin/xbacklight -inc 5\n\n4.Assign shortcuts to keys (ie F6 F7)."
-	read -p "Press [Enter] to continue:"
+	read -p "Press [Enter] to continue:" answer
 	clear
 	echo -e "For sound control:\n\n1.Go to System Settings > Keyboard > Shortcuts > Sound and Media.\n\n2. Change the shortcuts for Volume Mute, Volume Up, Volume Down."
-	read -p "Press [Enter] to continue:"
+	read -p "Press [Enter] to continue:" answer
 	clear
-	cat << 'EOF' | sudo tee ~/wifitoggle
+	cat << 'EOF' | sudo tee /bin/wifitoggle
 #!/bin/bash
 if [ $(nmcli nm wifi | grep "disabled" | wc -l) -eq 1 ] ; then
 nmcli nm wifi on
@@ -157,19 +176,24 @@ EOF
 	clear
 	sudo chmod +x /bin/wifitoggle
 	echo -e "For wifi toggle:\n\n1.Go to System Settings > Keyboard > Shortcuts > Custom Shortcuts and add (+ icon):\n\n2. Name:Wifitoggle\nCommand: wifitoggle\n\n3. Assign shortcut to a key (ie Ctrl+F11)"
-	read -p "Press [Enter] to continue:"
+	read -p "Press [Enter] to continue:" answer
 	clear
 else
-	echo "Keyboard not configured."
+	echo "Keyboard not configured"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 	
 #Install programs
 read -p "9. Would you like to install htop/restricted-extras/powertop/system monitor/synaptic? y/n :" answer
 if [ "$answer" = y ]; then
 	sudo apt-get install htop ubuntu-restricted-extras powertop indicator-multiload synaptic
+	echo "Programs installed"
 else
 	echo "Programs not installed"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Download and install Chrome Browser
 read -p "10. Download and install Chrome Browser? y/n :" answer
@@ -179,9 +203,12 @@ if [ "$answer" = y ]; then
 	sudo dpkg -i google-chrome-stable_current_amd64.deb
 	#Chrome install will likely fail so force install for dependicies
 	sudo apt-get install -f
+	echo "Chrome installed"
 else
 	echo "Chrome not installed"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Download and install Alex Murray Indicator Sensors
 read -p "11. Download and install indicator sensors? y/n :" answer
@@ -190,9 +217,12 @@ if [ "$answer" = y ]; then
 	wget https://launchpad.net/~alexmurray/+archive/ubuntu/indicator-sensors/+build/5285672/+files/indicator-sensors_0.7-2_amd64.deb
 	sudo dpkg -i indicator-sensors_0.7-2_amd64.deb
 	sudo apt-get install -f
+	echo "Indicator sensors installed"
 else
 	echo "Indicator sensors not install"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Install Oracle Java 7
 read -p "12. Install Oracle Java 7? y/n :" answer
@@ -200,9 +230,12 @@ if [ "$answer" = y ]; then
 	sudo add-apt-repository ppa:webupd8team/java
 	sudo apt-get update
 	sudo apt-get install oracle-java7-installer
+	echo "Java installed"
 else
 	echo "Java not installed"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Install My Weather Indicator	
 read -p "13. Install My Weather Indicator? y/n:" answer
@@ -210,24 +243,32 @@ if [ "$answer" = y ]; then
 	sudo add-apt-repository ppa:atareao/atareao
 	sudo apt-get update
 	sudo apt-get install my-weather-indicator
+	echo "Weather indicator installed"
 else
 	echo "Weather Indicator not installed"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Install Playonlinux
-read -p "13. Would you like to install PlayOnLinux and Wine? y/n :" answer
+read -p "14. Would you like to install PlayOnLinux and Wine? y/n :" answer
 if [ "$answer" = y ]; then
 	wget -q "http://deb.playonlinux.com/public.gpg" -O- | sudo apt-key add -
 	sudo wget http://deb.playonlinux.com/playonlinux_trusty.list -O /etc/apt/sources.list.d/playonlinux.list
 	sudo apt-get update
 	sudo apt-get install playonlinux wine:i386
+	echo "PlayOnLinux installed"
 else
-	echo "PlayOnLinux not install"
+	echo "PlayOnLinux not installed"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Install Intel Graphics
-read -p "14. Would you like to install Intel Graphics Drivers? y/n :"
+read -p "15. Would you like to install Intel Graphics Drivers? y/n :" answer
 if [ "$answer" = y ]; then
+	echo "Make sure you do not reboot after the installation finishes"
+	read -p "Press [Enter] to continue:" answer
 	cd ~/Downloads
 	wget --no-check-certificate https://download.01.org/gfx/RPM-GPG-KEY-ilg -O - | \
 	sudo apt-key add -
@@ -249,15 +290,17 @@ if [ "$answer" = y ]; then
 else
 	echo "Intel Graphics Drivers Not Installed"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Configure system for SSD
-read -p "15. Do you have a solid state drive and would you like to configure the system for it? y/n :" answer
+read -p "16. Do you have a solid state drive and would you like to configure the system for it? y/n :" answer
 if [ "$answer" = y ]; then
 	echo "Making changes to fstab and creating backup."
-	read -p "Press [Enter] to continue:"
+	read -p "Press [Enter] to continue:" answer
 	sudo sed -i.bak 's|^\S*\s\+/\s\+\S*\s\+|&noatime,nodiratime,|' /etc/fstab
 	echo "Creating daily trim cron job. This will create logs at /var/log/trim.log"
-	read -p "Press [Enter] to continue:"
+	read -p "Press [Enter] to continue:" answer
 	cat << 'EOF' | sudo tee /etc/cron.daily/trim
 #!/bin/sh
 LOG=/var/log/trim.log
@@ -266,65 +309,86 @@ fstrim -v / >> $LOG
 fstrim -v /home >> $LOG
 EOF
 
-clear
+	clear
+	echo "SSD configured"
 else
 	echo "SSD not configured"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Install VirtualBox
-read -p "16. Would you like to install VirtualBox? y/n :" answer
+read -p "17. Would you like to install VirtualBox? y/n :" answer
 if [ "$answer" = y ]; then
 	sudo apt-get install virtualbox
+	echo "Virtualbox installed"
 else
 	echo "Virtualbox not installed"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Install XBMC
-read -p "17. Would you like to install XBMC/KODI? y/n :" answer
+read -p "18. Would you like to install XBMC/KODI? y/n :" answer
 if [ "$answer" = y ]; then
 	sudo apt-get install xbmc
+	echo "XBMC/KODI installed"
 else
 	echo "XBMC/KODI not installed"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Install Pipelight
-read -p "18. Would you like to install Silverlight/Pipelight? y/n :"
+read -p "19. Would you like to install Silverlight/Pipelight? y/n :" answer
 if [ "$answer" = y ]; then
 	sudo add-apt-repository ppa:pipelight/stable
 	sudo apt-get update
 	sudo apt-get install --install-recommends pipelight-multi
 	sudo pipelight-plugin --update
 	sudo pipelight-plugin --enable silverlight
+	echo "Pipelight is installed and silverlight is enabled"
 else
-	echo "Silverlight/Pipelight not installed."
+	echo "Silverlight/Pipelight not installed"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Install Timeshift
-read -p "19. Would you like to install Timeshift? y/n :" answer
+read -p "21. Would you like to install Timeshift? y/n :" answer
 if [ "$answer" = y ]; then
 	sudo apt-add-repository -y ppa:teejee2008/ppa
 	sudo apt-get update
 	sudo apt-get install timeshift
+	echo "Timeshift installed"
 else
-	echo "Timeshift not installed."
+	echo "Timeshift not installed"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Install Dropbox
-read -p "20. Would you like to install dropbox? y/n :" answer
+read -p "22. Would you like to install dropbox? y/n :" answer
 if [ "$answer" = y ]; then
 	sudo apt-get install dropbox
+	echo "Dropbox installed"
 else
-	echo "Dropbox not installed."
+	echo "Dropbox not installed"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 
 #Upgrade Ubuntu
 read -p "Would you like to upgrade all of the packages for Ubuntu? y/n :" answer
 if [ "$answer" = y ]; then
 	sudo apt-get update
 	sudo apt-get upgrade
+	echo "Packages upgraded"
 else
 	echo "Packages not upgraded"
 fi
+read -p "Press [Enter] to continue:" answer
+clear
 		
 #Reboot
 read -p "You want to reboot now? y/n :" answer
