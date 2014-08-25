@@ -1,7 +1,7 @@
 #!/bin/bash
 #Acer C710 Ubuntu Post-Installation Script
 clear
-echo -e "This script will configure a fresh install of Ubuntu 14.04 on an Acer C710.\nI have tested it so far on Ubuntu 14.04 and Xubuntu 14.04 and it works great.\nI created this because I found that I was inputting the same commands and creating the same files over and over\nagain every time I wanted to install a fresh copy of Ubuntu.\nThis is my first script so I am always looking for improvements."
+echo -e "This script will configure a fresh install of Ubuntu 14.04 on an Acer C710.\nI have tested it so far on Ubuntu 14.04 and Xubuntu 14.04 and it works great.\nI created this because I found that I was inputting the same commands and\ncreating the same files over and over again every time I wanted to install\na fresh copy of Ubuntu.\n***Use this script at your own risk***"
 read -p "Press [Enter] to continue:" answer
 clear
 
@@ -178,6 +178,7 @@ EOF
 	echo -e "For wifi toggle:\n\n1.Go to System Settings > Keyboard > Shortcuts > Custom Shortcuts and add (+ icon):\n\n2. Name:Wifitoggle\nCommand: wifitoggle\n\n3. Assign shortcut to a key (ie Ctrl+F11)"
 	read -p "Press [Enter] to continue:" answer
 	clear
+	echo "Keyboard configured"
 else
 	echo "Keyboard not configured"
 fi
@@ -265,6 +266,7 @@ read -p "Press [Enter] to continue:" answer
 clear
 
 #Install Intel Graphics
+echo -e "The latest drivers will cause dkms i915 taint errors on boot but everything\nappears to work correctly"
 read -p "15. Would you like to install Intel Graphics Drivers? y/n :" answer
 if [ "$answer" = y ]; then
 	echo "Make sure you do not reboot after the installation finishes"
@@ -370,8 +372,20 @@ clear
 #Install Dropbox
 read -p "22. Would you like to install dropbox? y/n :" answer
 if [ "$answer" = y ]; then
-	sudo apt-get install dropbox
-	echo "Dropbox installed"
+	cd ~/
+	if [ "$arch" = 32 ]; then
+		wget -O dropbox.tar.gz "http://www.dropbox.com/download/?plat=lnx.x86"
+		tar -xvzf dropbox.tar.gz
+		~/.dropbox-dist/dropboxd
+		echo "Dropbox installed"
+	elif [ "$arch" = 64 ]; then
+		wget -O dropbox.tar.gz "http://www.dropbox.com/download/?plat=lnx.x86_64"
+		tar -xvzf dropbox.tar.gz
+		~/.dropbox-dist/dropboxd
+		echo "Dropbox installed"
+	else
+		echo "Incorrect arch type"
+	fi
 else
 	echo "Dropbox not installed"
 fi
