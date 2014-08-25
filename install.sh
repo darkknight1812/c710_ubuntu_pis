@@ -204,14 +204,15 @@ if [ "$answer" = y ]; then
 		wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 		sudo dpkg -i google-chrome-stable_current_amd64.deb
 		sudo apt-get install -f
+		echo "Chrome installed"
 	elif [ "$arch" = 32 ]; then
 		wget https://dl.google.com/linux/direct/google-chrome-stable_current_i386.deb
 		sudo dpkg -i google-chrome-stable_current_i386.deb
 		sudo apt-get install -f
+		echo "Chrome installed"
 	else
 		echo "Incorrect arch type"
-	fi
-	echo "Chrome installed"
+	fi	
 else
 	echo "Chrome not installed"
 fi
@@ -226,14 +227,15 @@ if [ "$answer" = y ]; then
 		wget https://launchpad.net/~alexmurray/+archive/ubuntu/indicator-sensors/+build/5285672/+files/indicator-sensors_0.7-2_amd64.deb
 		sudo dpkg -i indicator-sensors_0.7-2_amd64.deb
 		sudo apt-get install -f
+		echo "Indicator sensors installed"
 	elif [ "$arch" = 32 ]; then
 		wget https://launchpad.net/~alexmurray/+archive/ubuntu/indicator-sensors/+build/5285673/+files/indicator-sensors_0.7-2_i386.deb
 		sudo dpkg -i indicator-sensors_0.7-2_i386.deb
 		sudo apt-get install -f
+		echo "Indicator sensors installed"
 	else
 		echo "Incorrect arch type"
 	fi
-	echo "Indicator sensors installed"
 else
 	echo "Indicator sensors not install"
 fi
