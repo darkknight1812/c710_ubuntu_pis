@@ -24,6 +24,20 @@ while [ "$correct" = "false" ];
 	done
 clear
 
+correct=false
+while [ "$correct" = "false" ];
+	do
+		read -p "Ubuntu or Xubuntu? u/x :" dist
+		if [ "$dist" = u ]; then
+			correct=true
+		elif [ "$dist" = x ]; then
+			correct=true
+		else
+			echo "Please type either u or x"
+		fi
+	done
+clear
+
 #Load modules for C710
 read -p "1. Would you like to install touchpad modules? y/n :" answer
 if [ "$answer" = y ]; then
@@ -35,6 +49,8 @@ cyapa
 EOF
 	
 	clear
+	#Workaround for race condition. Sometimes on boot the touchpad would not work.
+	sed -i.bak -e '$i \modprobe cyapa\nrmmod chromeos_laptop\nmodprobe chromeos_laptop' /etc/rc.local
 	echo "Touchpad modules installed"
 else
 	echo "Not installing touchpad modules"
@@ -162,9 +178,17 @@ if [ "$answer" = y ]; then
 	echo -e "For brightness control:\n\n1.Go to System Settings > Keyboard > Shortcuts > Custom Shortcuts and add (+ icon):\n\n2. Name:Brightness Down\nCommand: /usr/bin/xbacklight -dec 5\n\n3. Name:Brightness Up\nCommand: /usr/bin/xbacklight -inc 5\n\n4.Assign shortcuts to keys (ie F6 F7)."
 	read -p "Press [Enter] to continue:" answer
 	clear
-	echo -e "For sound control:\n\n1.Go to System Settings > Keyboard > Shortcuts > Sound and Media.\n\n2. Change the shortcuts for Volume Mute, Volume Up, Volume Down."
-	read -p "Press [Enter] to continue:" answer
-	clear
+	if [ "$dist" = u ]; then
+		echo -e "For sound control:\n\n1.Go to System Settings > Keyboard > Shortcuts > Sound and Media.\n\n2. Change the shortcuts for Volume Mute, Volume Up, Volume Down."
+		read -p "Press [Enter] to continue:" answer
+		clear
+	elif [ "$dist" = x ]; then
+		echo -e 'For sound control:\n\n1.Go to System Settings > Keyboard > Shortcuts.\n\n2.Volume Up command: sh -c "pactl set-sink-mute 0 false ; pactl set-sink-volume 0 +5%"\n\n3.Volume Down command: sh -c "pactl set-sink-mute 0 false ; pactl -- set-sink-volume 0 -5%"\n\n4.Mute toggle command: pactl set-sink-mute 0 toggle\n\n5.You can change the keys to F8 - F10.'
+		read -p "Press [Enter] to continue:" answer
+		clear
+	else
+		echo "Incorrect dist type"
+	fi
 	cat << 'EOF' | sudo tee /bin/wifitoggle
 #!/bin/bash
 if [ $(nmcli nm wifi | grep "disabled" | wc -l) -eq 1 ] ; then
@@ -389,6 +413,10 @@ clear
 #Install Dropbox
 read -p "22. Would you like to install dropbox? y/n :" answer
 if [ "$answer" = y ]; then
+	clear
+	echo "Once you configure dropbox, you have to close/quit it for the script to continue"
+	read -p "Press [Enter] to continue:" answer
+	clear
 	cd ~/
 	if [ "$arch" = 32 ]; then
 		wget -O dropbox.tar.gz "http://www.dropbox.com/download/?plat=lnx.x86"
@@ -405,6 +433,17 @@ if [ "$answer" = y ]; then
 	fi
 else
 	echo "Dropbox not installed"
+fi
+read -p "Press [Enter] to continue:" answer
+clear
+
+#Install vlc
+read -p "23. Would you like to install vlc? y/n :" answer
+if [ "$answer" = y ]; then
+	sudo apt-get install vlc
+	echo "VLC installed"
+else
+	echo "VLC not installed"
 fi
 read -p "Press [Enter] to continue:" answer
 clear

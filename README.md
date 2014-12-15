@@ -39,4 +39,5 @@ Options Detailed:
 19. Installs [pipelight](https://launchpad.net/pipelight) and enables silverlight plug-in
 20. Installs [Timeshift](http://www.teejeetech.in/p/timeshift.html)
 21. Installs [Dropbox](https://www.dropbox.com/)
-22. Check for system updates by running apt-get update and apt-get dist-upgrade
+22. Installs [vlc](https://www.videolan.org/vlc/index.html)
+23. Check for system updates by running apt-get update and apt-get dist-upgrade
